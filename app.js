@@ -3,6 +3,8 @@ const { Sequelize, DataTypes } = require('sequelize');
 
 const app = express();
 
+app.use(express.json());
+
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
   dialect: 'mysql'
@@ -21,11 +23,30 @@ app.get('/profesores', async (req, res) => {
     }
   try {
 const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
-    console.log(profesores);
     res.json(profesores);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener los profesores' });
+  }
+});
+
+app.post('/profesores', async (req, res) => {
+  try {
+    const { nombre_P, email, tipo_P } = req.body[0]; // Obtener los datos del nuevo profesor del cuerpo de la solicitud
+
+    const resultado = await sequelize.query('INSERT INTO profesor (nombre_P, email, tipo_P) VALUES (?,?,?)', {
+      replacements: [nombre_P, email, tipo_P]
+    }); // Insertar el nuevo profesor en la base de datos
+
+    if (resultado[0].affectedRows > 0) {
+      res.status(201).json({ message: 'Profesor insertado correctamente' });
+    } else {
+      console.error(error.message)
+      res.status(500).json({ error: 'Error al insertar el profesor' });
+    }
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).json({ error: 'Error al insertar el profesor' });
   }
 });
 
