@@ -10,7 +10,48 @@ const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   dialect: 'mysql'
 });
 
+app.get('/api/v1/itinerario/last', async (req, res) => {
+  try {
+    const [results] = await sequelize.query('SELECT max(id_Itinerario) AS lastItinerario FROM itinerario_caso;');
+    const lastItinerario = results[0].lastItinerario;
 
+    const [casosResults] = await sequelize.query(`SELECT id_Caso FROM itinerario_caso WHERE id_Itinerario = ${lastItinerario};`);
+    const idCasos = casosResults.map(caso => caso.id_Caso);
+
+    res.json({
+      status: 200,
+      data: {
+        idCasos,
+        idItinerario: lastItinerario
+      }
+    });
+    console.log(res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+app.get('/api/v1/caso/:idCaso', (req, res) => {
+  const idItinerario = req.query.itinerario;
+  const idCaso = req.params.idCaso;
+
+  // Ejecutar la consulta usando Sequelize
+  sequelize.query(`
+    SELECT * FROM casos
+    JOIN itinerario_caso ON casos.id = itinerario_caso.id_caso
+    WHERE id_itinerario = ${idItinerario} AND casos.id = ${idCaso}
+  `)
+    .then(([results, metadata]) => {
+      // Manejar la respuesta
+      res.json(results);
+    })
+    .catch(error => {
+      // Manejar errores
+      console.error(error);
+      res.status(500).json({ error: 'Error en el servidor' });
+    });
+});
 
 // Ruta para obtener todos los profesores
 app.get('/profesores', async (req, res) => {
