@@ -53,18 +53,24 @@ app.get('/api/v1/caso/:idCaso', (req, res) => {
     });
 });
 
-app.get('/api/v1/caso/pedir', async (req, res) => {
-  let query = 'SELECT id,nombre FROM casos'; 
-  const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
-  res.json(profesores);
-   
+app.get('/api/v1/casos/pedir', async (req, res) => {
+  try {
+    let query = 'SELECT id,nombre FROM casos'; // Consulta SQL inicial sin filtro
+
+const casos = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+res.json(casos);
+    console.log(res); // Mostrar en la consola del servidor
+  } catch (error) {
+    console.error('Error al obtener los casos:', error);
+    res.status(500).json({ error: 'Error al obtener los casos' });
+  }
 });
 
 // Ruta para obtener todos los profesores
 app.get('/profesores', async (req, res) => {
     const id_P = req.query.id_P; // Obtener el valor del parámetro id_P de la URL
 
-    let query = 'SELECT * FROM profesor'; // Consulta SQL inicial sin filtro
+    let query = 'SELECT * FROM profesores'; // Consulta SQL inicial sin filtro
 
     if (id_P) {
       query = `SELECT * FROM profesor WHERE id_P >= ${id_P}`; // Construir la consulta con filtro si se proporciona el parámetro id_P
