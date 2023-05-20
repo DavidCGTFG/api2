@@ -53,23 +53,11 @@ app.get('/api/v1/caso/:idCaso', (req, res) => {
     });
 });
 
-app.get('/api/v1/caso/pedir', (req, res) => {
-  const idItinerario = req.query.itinerario;
-  const idCaso = req.params.idCaso;
-
-  // Ejecutar la consulta usando Sequelize
-  sequelize.query(`
-    SELECT id,nombre FROM casos
-  `)
-    .then(([results, metadata]) => {
-      // Manejar la respuesta
-      res.json(results);
-    })
-    .catch(error => {
-      // Manejar errores
-      console.error(error);
-      res.status(500).json({ error: 'Error en el servidor' });
-    });
+app.get('/api/v1/caso/pedir', async (req, res) => {
+  let query = 'SELECT id,nombre FROM casos'; 
+  const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+  res.json(profesores);
+   
 });
 
 // Ruta para obtener todos los profesores
