@@ -104,7 +104,23 @@ app.post('/profesores', async (req, res) => {
   }
 });
 
-const port = 3000;
+app.post('/api/v1/itinerario/insertar', async (req, res) => {
+  const array = req.body;
+
+  for (const element of array) {
+    console.log(element);
+  }
+  res.json(array);
+  console.log(array);
+});
+
+app.post('/api/v1/caso/cambiar', async (req, res) => {
+ 
+  res.json(array);
+  console.log(array);
+});
+
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
