@@ -1,7 +1,15 @@
 const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const { promisify } = require('util');
 const { Sequelize, DataTypes } = require('sequelize');
 
+
 const app = express();
+const storage = multer.memoryStorage();
+const readFileAsync = promisify(fs.readFile);
+const upload = multer({ storage }).single('imagen1');
+
 
 app.use(express.json());
 
@@ -25,9 +33,8 @@ app.get('/api/v1/itinerario/last', async (req, res) => {
         idItinerario: lastItinerario
       }
     });
-    console.log(res);
+
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
@@ -48,7 +55,6 @@ app.get('/api/v1/caso/:idCaso', (req, res) => {
     })
     .catch(error => {
       // Manejar errores
-      console.error(error);
       res.status(500).json({ error: 'Error en el servidor' });
     });
 });
@@ -57,29 +63,28 @@ app.get('/api/v1/casos/pedir', async (req, res) => {
   try {
     let query = 'SELECT id,nombre FROM casos'; // Consulta SQL inicial sin filtro
 
-const casos = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
-res.json(casos);
-    console.log(res); // Mostrar en la consola del servidor
+    const casos = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+    res.json(casos);
+
   } catch (error) {
-    console.error('Error al obtener los casos:', error);
+
     res.status(500).json({ error: 'Error al obtener los casos' });
   }
 });
 
 // Ruta para obtener todos los profesores
 app.get('/profesores', async (req, res) => {
-    const id_P = req.query.id_P; // Obtener el valor del parámetro id_P de la URL
+  const id = req.query.id; // Obtener el valor del parámetro id_P de la URL
 
-    let query = 'SELECT * FROM profesores'; // Consulta SQL inicial sin filtro
+  let query = 'SELECT * FROM profesores'; // Consulta SQL inicial sin filtro
 
-    if (id_P) {
-      query = `SELECT * FROM profesor WHERE id_P >= ${id_P}`; // Construir la consulta con filtro si se proporciona el parámetro id_P
-    }
+  if (id) {
+    query = `SELECT * FROM profesores WHERE id >= ${id}`; // Construir la consulta con filtro si se proporciona el parámetro id_P
+  }
   try {
-const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+    const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
     res.json(profesores);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Error al obtener los profesores' });
   }
 });
@@ -114,10 +119,51 @@ app.post('/api/v1/itinerario/insertar', async (req, res) => {
   console.log(array);
 });
 
-app.post('/api/v1/caso/cambiar', async (req, res) => {
- 
-  res.json(array);
-  console.log(array);
+app.post('/caso/nuevo', async (req, res) => {
+  console.log(req.body[0]);
+  const { id_valor, nombre, texto_intro } = req.body[0];
+
+  const caso = await sequelize.query('INSERT INTO casos (id_valor,nombre,texto_intro) VALUES (?,?,?)', {
+    replacements: [id_valor, nombre, texto_intro]
+  });
+
+});
+
+app.get('/casos', async (req, res) => {
+
+  let query = 'SELECT * FROM casos'; // Consulta SQL inicial sin filtro
+
+  try {
+    const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+    res.json(profesores);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los casos' });
+  }
+});
+
+app.post('/caso/cambiar',upload, async (req, res) => {
+  const { id } = req.body;
+  const imagen1 = req.file;
+ // console.log(req.file);
+
+  if (!imagen1) {
+    return res.status(400).json({ error: 'No se ha enviado ninguna imagen' });
+  }
+
+  try {
+    // Convertir los datos de la imagen en un objeto Buffer
+    const imagenBuffer = imagen1.buffer;
+    console.log("2");
+    // Guardar la imagen en la base de datos
+    const resultado = await sequelize.query('UPDATE casos SET imagen_Opcion_Avanzada=? WHERE id=?', {
+      replacements: [imagenBuffer, id]
+    });
+
+    res.json(resultado);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error al procesar la imagen' });
+  }
 });
 
 const port = 3001;
@@ -125,3 +171,36 @@ const port = 3001;
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
 });
+
+
+/* const { id,
+    id_valor,
+    nombre,
+    texto_intro,
+    texto_Opcion_Basica,
+    texto_Opcion_Avanzada,
+    texto_Opcion_pasiva,
+    texto_Opcion_Agresiva,
+    texto_Redencion_Pasiva,
+    texto_Redencion_Buena_Pasiva,
+    texto_Redencion_Mala_Pasiva,
+    texto_Redencion_Agresiva,
+    texto_Redencion_Buena_Agresiva,
+    texto_Redencion_Mala_Agresiva } = req.body[0];
+
+  const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=? where id=?', {
+    replacements: [id_valor,
+      nombre,
+      texto_intro,
+      texto_Opcion_Basica,
+      texto_Opcion_Avanzada,
+      texto_Opcion_pasiva,
+      texto_Opcion_Agresiva,
+      texto_Redencion_Pasiva,
+      texto_Redencion_Buena_Pasiva,
+      texto_Redencion_Mala_Pasiva,
+      texto_Redencion_Agresiva,
+      texto_Redencion_Buena_Agresiva,
+      texto_Redencion_Mala_Agresiva,
+      id]
+  });*/
