@@ -8,7 +8,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
-const upload = multer({ storage }).single('imagen1');
+const upload = multer({ storage }).array('imagen1',6);
 
 
 app.use(express.json());
@@ -110,13 +110,24 @@ app.post('/profesores', async (req, res) => {
 });
 
 app.post('/api/v1/itinerario/insertar', async (req, res) => {
-  const array = req.body;
-
+  try{
+  const {nombre } = req.body;
+  const caso = await sequelize.query('INSERT INTO itinerarios (nombre) VALUES (?)', {
+    replacements: [nombre]
+ });
+ let query="select max(id) from itinerario;";
+ const ultimoItinerario=await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+  const array=req.body.array;
   for (const element of array) {
-    console.log(element);
+    const caso = await sequelize.query('INSERT INTO itinerario_caso (id_itinerario,id_caso) VALUES (?,?)', {
+      replacements: [ultimoItinerario,element]
+   });
   }
   res.json(array);
   console.log(array);
+}catch(error){
+  console.log(error);
+}
 });
 
 app.post('/caso/nuevo', async (req, res) => {
@@ -129,7 +140,7 @@ app.post('/caso/nuevo', async (req, res) => {
 
 });
 
-app.get('/casos', async (req, res) => {
+app.get('/api/v1/casos', async (req, res) => {
 
   let query = 'SELECT * FROM casos'; // Consulta SQL inicial sin filtro
 
@@ -141,39 +152,8 @@ app.get('/casos', async (req, res) => {
   }
 });
 
-app.post('/caso/cambiar',upload, async (req, res) => {
-  const { id } = req.body;
-  const imagen1 = req.file;
- // console.log(req.file);
-
-  if (!imagen1) {
-    return res.status(400).json({ error: 'No se ha enviado ninguna imagen' });
-  }
-
-  try {
-    // Convertir los datos de la imagen en un objeto Buffer
-    const imagenBuffer = imagen1.buffer;
-    console.log("2");
-    // Guardar la imagen en la base de datos
-    const resultado = await sequelize.query('UPDATE casos SET imagen_Opcion_Avanzada=? WHERE id=?', {
-      replacements: [imagenBuffer, id]
-    });
-
-    res.json(resultado);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Error al procesar la imagen' });
-  }
-});
-
-const port = 3001;
-
-app.listen(port, () => {
-  console.log(`Servidor Express funcionando en el puerto ${port}`);
-});
-
-
-/* const { id,
+app.post('/api/v1/caso/cambiar',upload, async (req, res) => {
+  const { id,
     id_valor,
     nombre,
     texto_intro,
@@ -186,10 +166,30 @@ app.listen(port, () => {
     texto_Redencion_Mala_Pasiva,
     texto_Redencion_Agresiva,
     texto_Redencion_Buena_Agresiva,
-    texto_Redencion_Mala_Agresiva } = req.body[0];
+    texto_Redencion_Mala_Agresiva } = req.body;
 
-  const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=? where id=?', {
-    replacements: [id_valor,
+  const imagenes = req.files;
+  const imagen1=imagenes[0];
+  const imagen2=imagenes[1];
+  const imagen3=imagenes[2];
+  const imagen4=imagenes[3];
+  const imagen5=imagenes[4];
+  const imagen6=imagenes[5];
+
+
+  try {
+    // Convertir los datos de las imagenes en un objeto Buffer
+    const imagenBasica = imagen1.buffer;
+    const imagenAvanzada = imagen2.buffer;
+    const imagenAgresiva = imagen3.buffer;
+    const imagenPasiva = imagen4.buffer;
+    const imagenRedencionPasiva = imagen5.buffer;
+    const imagenRedencionAgresiva = imagen6.buffer;
+
+
+    // Guardar la imagen en la base de datos
+    const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=?,imagen_Opcion_Basica=?,imagen_Opcion_Avanzada=?,imagen_Opcion_Agresiva=?,imagen_Opcion_Pasiva=?,imagen_Redencion_Pasiva=?,imagen_Redencion_Agresiva=? where id=?', {
+      replacements: [id_valor,
       nombre,
       texto_intro,
       texto_Opcion_Basica,
@@ -202,5 +202,25 @@ app.listen(port, () => {
       texto_Redencion_Agresiva,
       texto_Redencion_Buena_Agresiva,
       texto_Redencion_Mala_Agresiva,
-      id]
-  });*/
+      imagenBasica,
+      imagenAvanzada,
+      imagenAgresiva,
+      imagenPasiva,
+      imagenRedencionPasiva,
+      imagenRedencionAgresiva,
+       id]
+    });
+
+    res.json("Actualizado");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error al procesar la imagen' });
+  }
+});
+
+const port = 3000;
+
+app.listen(port, () => {
+  console.log(`Servidor Express funcionando en el puerto ${port}`);
+});
+
