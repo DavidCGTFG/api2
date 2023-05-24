@@ -1,13 +1,12 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const { promisify } = require('util');
 const { Sequelize, DataTypes } = require('sequelize');
 
 
 const app = express();
 const storage = multer.memoryStorage();
-const upload = multer({ storage }).single('imagen1');
+const upload = multer({ storage });
 
 
 
@@ -217,6 +216,49 @@ app.post('/caso/cambiar',upload, async (req, res) => {
     res.status(500).json({ error: 'Error al procesar la imagen' });
   }
 });
+
+
+app.post('/subir', upload.array('imagenes', 10), (req, res) => {
+  // Aquí puedes obtener los archivos subidos a través de req.files
+
+  // Verificar si se enviaron archivos
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'No se encontraron imágenes para subir.' });
+  }
+
+  const Client = require('ssh2-sftp-client');
+  const sftp = new Client();
+
+  sftp.connect({
+    host: '44.55.66.120',
+    port: 22,
+    username: 'tu_usuario',
+    password: 'tu_contraseña'
+  })
+  .then(() => {
+    // Subir cada archivo al servidor de destino
+    const promises = req.files.map((file) => {
+      const buffer = file.buffer; // Obtener el buffer de la imagen en memoria
+      return sftp.put(buffer, '/var/www/html/imagenes/' + file.originalname);
+    });
+
+    // Esperar a que se completen todas las subidas
+    return Promise.all(promises);
+  })
+  .then(() => {
+    // Envía una respuesta exitosa al cliente
+    res.status(200).json({ message: 'Imágenes subidas con éxito.' });
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).json({ error: 'Ocurrió un error al subir las imágenes.' });
+  })
+  .finally(() => {
+    // Cierra la conexión SFTP
+    sftp.end();
+  });
+});
+
 
 const port = 3000;
 
