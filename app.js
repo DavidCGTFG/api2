@@ -151,7 +151,7 @@ app.get('/api/v1/casos', async (req, res) => {
   }
 });
 
-app.post('/caso/cambiar',upload, async (req, res) => {
+app.post('/caso/cambiar',upload.array('imagenes', 6), async (req, res) => {
   const { id ,
     id_valor,
     nombre,
@@ -230,10 +230,10 @@ app.post('/subir', upload.array('imagenes', 10), (req, res) => {
   const sftp = new Client();
 
   sftp.connect({
-    host: '44.55.66.120',
+    host: '44.205.198.225',
     port: 22,
-    username: 'tu_usuario',
-    password: 'tu_contraseña'
+    username: 'admin',
+    password: ''
   })
   .then(() => {
     // Subir cada archivo al servidor de destino
