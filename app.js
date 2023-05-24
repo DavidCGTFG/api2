@@ -151,9 +151,8 @@ app.get('/api/v1/casos', async (req, res) => {
   }
 });
 
-app.post('/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
-  const { id, id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, texto_Opcion_pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva, texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, texto_Redencion_Mala_Agresiva } = req.body;
-
+app.post('/api/v1/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
+  const { id, id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, texto_Opcion_Pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva, texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, texto_Redencion_Mala_Agresiva } = req.body;
   const imagenes = req.files;
   const imagen1 = imagenes[0];
   const imagen2 = imagenes[1];
@@ -163,6 +162,10 @@ app.post('/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
   const imagen6 = imagenes[5];
 
   try {
+    const [results] = await sequelize.query('SELECT nombre AS valor FROM valores where id=?',{
+      replacements:[id_valor]
+    });
+    const valor = results[0].valor;
     // Convertir los datos de las imágenes en un objeto Buffer
     const imagenBasica = imagen1.buffer;
     const imagenAvanzada = imagen2.buffer;
@@ -182,30 +185,35 @@ app.post('/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
       privateKey:privateKey
     });
 
-    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + imagen1.originalname);
-    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + imagen2.originalname);
-    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + imagen3.originalname);
-    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + imagen4.originalname);
-    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + imagen5.originalname);
-    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + imagen6.originalname);
+    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
+    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
+    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
+    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
 
     sftp.end();
-
     // Guardar la imagen en la base de datos
-    const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=?,imagen_Opcion_Basica=?,imagen_Opcion_Avanzada=?,imagen_Opcion_Agresiva=?,imagen_Opcion_Pasiva=?,imagen_Redencion_Pasiva=?,imagen_Redencion_Agresiva=? where id=?', {
+    const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_Pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=?,imagen_Opcion_Basica=?,imagen_Opcion_Avanzada=?,imagen_Opcion_Agresiva=?,imagen_Opcion_Pasiva=?,imagen_Redencion_Pasiva=?,imagen_Redencion_Agresiva=? where id=?', {
       replacements: [id_valor, 
         nombre, 
         texto_intro, 
         texto_Opcion_Basica, 
         texto_Opcion_Avanzada, 
-        texto_Opcion_pasiva,
+        texto_Opcion_Pasiva,
          texto_Opcion_Agresiva,
           texto_Redencion_Pasiva,
            texto_Redencion_Buena_Pasiva, 
            texto_Redencion_Mala_Pasiva, 
            texto_Redencion_Agresiva, 
+           texto_Redencion_Buena_Agresiva,
             texto_Redencion_Mala_Agresiva, 
-           imagen1.originalname, imagen2.originalname, imagen3.originalname, imagen4.originalname, imagen5.originalname, imagen6.originalname, id]
+            (valor+"_basica"+id+".jpg"),
+            (valor+"_avanzada"+id+".jpg"),
+            (valor+"_agresiva"+id+".jpg"),
+            (valor+"_pasiva"+id+".jpg"),
+            (valor+"_redencion_pasiva"+id+".jpg"),
+            (valor+"_redencion_agresiva"+id+".jpg"),id]
     });
 
 
@@ -216,7 +224,81 @@ app.post('/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
   }
 });
 
+app.post('/api/v1/caso/insertar', upload.array('imagen', 6), async (req, res) => {
+  const {id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, texto_Opcion_Pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva, texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, texto_Redencion_Mala_Agresiva } = req.body;
+  const imagenes = req.files;
+  const imagen1 = imagenes[0];
+  const imagen2 = imagenes[1];
+  const imagen3 = imagenes[2];
+  const imagen4 = imagenes[3];
+  const imagen5 = imagenes[4];
+  const imagen6 = imagenes[5];
 
+  try {
+    const [results] = await sequelize.query('SELECT nombre AS valor FROM valores where id=?',{
+      replacements:[id_valor]
+    });
+    const valor = results[0].valor;
+    const [ultimo] = await sequelize.query('SELECT max(id) AS ultimoCaso FROM casos');
+    const id = ultimo[0].ultimoCaso+1;
+    // Convertir los datos de las imágenes en un objeto Buffer
+    const imagenBasica = imagen1.buffer;
+    const imagenAvanzada = imagen2.buffer;
+    const imagenAgresiva = imagen3.buffer;
+    const imagenPasiva = imagen4.buffer;
+    const imagenRedencionPasiva = imagen5.buffer;
+    const imagenRedencionAgresiva = imagen6.buffer;
+
+    const Client = require('ssh2-sftp-client');
+    const privateKey = require('fs').readFileSync('key/pruebitaputty.ppk');
+    const sftp = new Client();
+
+    await sftp.connect({
+      host: '44.205.198.225',
+      port: 22,
+      username: 'admin',
+      privateKey:privateKey
+    });
+
+    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
+    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
+    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
+    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
+
+    sftp.end();
+
+    // Guardar la imagen en la base de datos
+    const resultado = await sequelize.query('insert into casos (id_valor, nombre, texto_intro,texto_Opcion_Basica,texto_Opcion_Avanzada,texto_Opcion_Pasiva,texto_Opcion_Agresiva,texto_Redencion_Pasiva,texto_Redencion_Buena_Pasiva,texto_Redencion_Mala_Pasiva,texto_Redencion_Agresiva,texto_Redencion_Buena_Agresiva,texto_Redencion_Mala_Agresiva,imagen_Opcion_Basica,imagen_Opcion_Avanzada,imagen_Opcion_Agresiva,imagen_Opcion_Pasiva,imagen_Redencion_Pasiva,imagen_Redencion_Agresiva) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', {
+      replacements: [id_valor, 
+        nombre, 
+        texto_intro, 
+        texto_Opcion_Basica, 
+        texto_Opcion_Avanzada, 
+        texto_Opcion_Pasiva,
+         texto_Opcion_Agresiva,
+          texto_Redencion_Pasiva,
+           texto_Redencion_Buena_Pasiva, 
+           texto_Redencion_Mala_Pasiva, 
+           texto_Redencion_Agresiva, 
+           texto_Redencion_Buena_Agresiva,
+            texto_Redencion_Mala_Agresiva, 
+            (valor+"_basica"+id+".jpg"),
+            (valor+"_avanzada"+id+".jpg"),
+            (valor+"_agresiva"+id+".jpg"),
+            (valor+"_pasiva"+id+".jpg"),
+            (valor+"_redencion_pasiva"+id+".jpg"),
+            (valor+"_redencion_agresiva"+id+".jpg")]
+    });
+
+
+    res.json("Creado");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error al procesar la imagen' });
+  }
+});
 
 app.post('/subir', upload.array('imagen', 10), (req, res) => {
   // Aquí puedes obtener los archivos subidos a través de req.files
