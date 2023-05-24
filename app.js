@@ -3,13 +3,12 @@ const multer = require('multer');
 const fs = require('fs');
 const { promisify } = require('util');
 const { Sequelize, DataTypes } = require('sequelize');
-
+const path = require('path');
 
 const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
-const upload = multer({ storage }).array('imagen1',6);
-
+const upload = multer({ storage }).array('imagenes',6);
 
 app.use(express.json());
 
@@ -217,6 +216,33 @@ app.post('/api/v1/caso/cambiar',upload, async (req, res) => {
     res.status(500).json({ error: 'Error al procesar la imagen' });
   }
 });
+
+app.put('/pruebita/imagenes', upload, async (req, res) => {
+  try {
+    for (const file of req.files) {
+      const fileName = file.originalname;
+      const fileData = file.buffer;
+      const filePath = path.join('/var/www/html/imagenes', fileName); // Ruta completa del archivo
+
+      fs.writeFile(filePath, fileData, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Archivo subido exitosamente');
+        }
+      });
+    }
+
+    res.status(200).json({ message: 'Imagen cargada exitosamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al cargar la imagen' });
+  }
+});
+
+
+
+
 
 const port = 3000;
 
