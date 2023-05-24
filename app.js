@@ -217,7 +217,7 @@ app.post('/api/v1/caso/cambiar',upload, async (req, res) => {
   }
 });
 
-app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
+app.post('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   try {
     // Accede a los archivos subidos a través de req.files
     const files = req.files;
