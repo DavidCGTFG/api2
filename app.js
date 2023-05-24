@@ -253,7 +253,8 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
     
     // Iterar sobre los archivos subidos y guardarlos en disco
     files.forEach((file, index) => {
-      const filePath = `/var/www/html/imagenes/imagen${index + 1}`;
+      const originalFileName = file.originalname; // Obtener el nombre original del archivo
+      const filePath = `/var/www/html/imagenes/${originalFileName}`;
       const fileData = file.buffer; // Obtener el contenido del archivo
 
       // Escribir el archivo en disco
@@ -271,6 +272,7 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
     res.status(500).json({ message: 'Error al cargar las imágenes' });
   }
 });
+
 
 
 
