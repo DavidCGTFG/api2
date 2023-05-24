@@ -9,6 +9,7 @@ const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
 const upload = multer({ dest: '/var/www/html/imagenes' });
+const uploadPath = '/var/www/html/imagenes/';
 
 app.use(express.json());
 
