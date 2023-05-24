@@ -253,6 +253,8 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
     
     // Iterar sobre los archivos subidos y guardarlos en disco
     files.forEach((file, index) => {
+      console.log(file.originalname);
+      console.log( file.buffer);
       const originalFileName = file.originalname; // Obtener el nombre original del archivo
       const filePath = `/var/www/html/imagenes/${originalFileName}`;
       const fileData = file.buffer; // Obtener el contenido del archivo
