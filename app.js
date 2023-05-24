@@ -222,7 +222,7 @@ app.put('/pruebita/imagenes', upload, async (req, res) => {
     for (const file of req.files) {
       const fileName = file.originalname;
       const fileData = file.buffer;
-      const filePath = path.join('/var/www/html/imagenes');
+      const filePath = path.join('/var/www/html/imagenes/');
 
       fs.writeFile(filePath, fileData, (err) => {
         if (err) {
