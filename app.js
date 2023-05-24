@@ -9,7 +9,6 @@ const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
 const upload = multer({ dest: '/var/www/html/imagenes' });
-const uploadPath = '/var/www/html/imagenes/';
 
 app.use(express.json());
 
@@ -246,23 +245,21 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   }
 });
 
+
 app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   try {
-    // Accede a los archivos subidos a través de req.files
     const files = req.files;
-    console.log('Archivos subidos:', files);
-
-    // Itera sobre los archivos subidos
+    
+    // Iterar sobre los archivos subidos y guardarlos en disco
     files.forEach((file, index) => {
-      const filename = `imagen${index + 1}${path.extname(file.originalname)}`; // Construye el nombre del archivo
-      const filePath = path.join(uploadPath, filename); // Construye la ruta completa del archivo
+      const filePath = `/var/www/html/imagenes/imagen${index + 1}`;
+      const fileData = file.buffer; // Obtener el contenido del archivo
 
-      // Guarda el archivo en la ubicación deseada
-      fs.writeFile(filePath, file.buffer, (error) => {
+      // Escribir el archivo en disco
+      fs.writeFile(filePath, fileData, (error) => {
         if (error) {
-          console.error(`Error al guardar el archivo ${filename}`);
-        } else {
-          console.log(`Archivo ${filename} guardado exitosamente en ${filePath}`);
+          console.error(error);
+          return res.status(500).json({ message: 'Error al guardar las imágenes' });
         }
       });
     });
@@ -273,6 +270,7 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
     res.status(500).json({ message: 'Error al cargar las imágenes' });
   }
 });
+
 
 
 const port = 3000;
