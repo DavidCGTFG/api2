@@ -227,7 +227,7 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
   }
 
   const Client = require('ssh2-sftp-client');
-  const privateKey = require('fs').readFileSync('pruebitaputty.ppk');
+  const privateKey = require('fs').readFileSync('key/pruebitaputty.ppk');
   const sftp = new Client();
 
   sftp.connect({
