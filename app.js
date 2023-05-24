@@ -193,8 +193,21 @@ app.post('/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
 
     // Guardar la imagen en la base de datos
     const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=?,imagen_Opcion_Basica=?,imagen_Opcion_Avanzada=?,imagen_Opcion_Agresiva=?,imagen_Opcion_Pasiva=?,imagen_Redencion_Pasiva=?,imagen_Redencion_Agresiva=? where id=?', {
-      replacements: [id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, texto_Opcion_pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva, texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, texto_Redencion_Mala_Agresiva, imagen1.originalname, imagen2.originalname, imagen3.originalname, imagen4.originalname, imagen5.originalname, imagen6.originalname, id]
+      replacements: [id_valor, 
+        nombre, 
+        texto_intro, 
+        texto_Opcion_Basica, 
+        texto_Opcion_Avanzada, 
+        texto_Opcion_pasiva,
+         texto_Opcion_Agresiva,
+          texto_Redencion_Pasiva,
+           texto_Redencion_Buena_Pasiva, 
+           texto_Redencion_Mala_Pasiva, 
+           texto_Redencion_Agresiva, 
+            texto_Redencion_Mala_Agresiva, 
+           imagen1.originalname, imagen2.originalname, imagen3.originalname, imagen4.originalname, imagen5.originalname, imagen6.originalname, id]
     });
+
 
     res.json("Actualizado");
   } catch (error) {
