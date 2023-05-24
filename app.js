@@ -227,13 +227,14 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
   }
 
   const Client = require('ssh2-sftp-client');
+  const privateKey = require('fs').readFileSync('pruebitaputty.ppk');
   const sftp = new Client();
 
   sftp.connect({
     host: '44.205.198.225',
     port: 22,
     username: 'admin',
-    password: ''
+    privateKey:privateKey
   })
   .then(() => {
     // Subir cada archivo al servidor de destino
