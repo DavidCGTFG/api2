@@ -151,7 +151,7 @@ app.get('/api/v1/casos', async (req, res) => {
   }
 });
 
-app.post('/caso/cambiar',upload.array('imagenes', 6), async (req, res) => {
+app.post('/caso/cambiar',upload.array('imagen', 6), async (req, res) => {
   const { id ,
     id_valor,
     nombre,
@@ -218,7 +218,7 @@ app.post('/caso/cambiar',upload.array('imagenes', 6), async (req, res) => {
 });
 
 
-app.post('/subir', upload.array('imagenes', 10), (req, res) => {
+app.post('/subir', upload.array('imagen', 10), (req, res) => {
   // Aquí puedes obtener los archivos subidos a través de req.files
 
   // Verificar si se enviaron archivos
