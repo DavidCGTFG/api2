@@ -3,18 +3,13 @@ const multer = require('multer');
 const fs = require('fs');
 const { promisify } = require('util');
 const { Sequelize, DataTypes } = require('sequelize');
-const path = require('path');
+
 
 const app = express();
-const readFileAsync = promisify(fs.readFile);
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single('imagen1');
 
-const storage = multer.diskStorage({
-  destination: '/var/www/html/imagenes',
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
-const upload = multer({ storage: storage });
+
 
 app.use(express.json());
 
@@ -157,8 +152,8 @@ app.get('/api/v1/casos', async (req, res) => {
   }
 });
 
-app.post('/api/v1/caso/cambiar',upload.array('imagenes', 6), async (req, res) => {
-  const { id,
+app.post('/caso/cambiar',upload, async (req, res) => {
+  const { id ,
     id_valor,
     nombre,
     texto_intro,
@@ -223,20 +218,10 @@ app.post('/api/v1/caso/cambiar',upload.array('imagenes', 6), async (req, res) =>
   }
 });
 
-app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
-  try {
-    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al cargar las imágenes' });
-  }
-});
-
-
-
 const port = 3000;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
 });
+
 
