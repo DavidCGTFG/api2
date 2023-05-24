@@ -9,6 +9,7 @@ const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
 const upload = multer({ dest: '/var/www/html/imagenes' });
+const uploadPath = '/var/www/html/imagenes/';
 
 app.use(express.json());
 
@@ -223,6 +224,21 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
     const files = req.files;
     console.log('Archivos subidos:', files);
 
+    // Itera sobre los archivos subidos
+    files.forEach((file, index) => {
+      const filename = `imagen${index + 1}${path.extname(file.originalname)}`; // Construye el nombre del archivo
+      const filePath = path.join(uploadPath, filename); // Construye la ruta completa del archivo
+
+      // Guarda el archivo en la ubicación deseada
+      fs.writeFile(filePath, file.buffer, (error) => {
+        if (error) {
+          console.error(`Error al guardar el archivo ${filename}`);
+        } else {
+          console.log(`Archivo ${filename} guardado exitosamente en ${filePath}`);
+        }
+      });
+    });
+
     res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
   } catch (error) {
     console.error(error);
@@ -230,9 +246,33 @@ app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   }
 });
 
+app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
+  try {
+    // Accede a los archivos subidos a través de req.files
+    const files = req.files;
+    console.log('Archivos subidos:', files);
 
+    // Itera sobre los archivos subidos
+    files.forEach((file, index) => {
+      const filename = `imagen${index + 1}${path.extname(file.originalname)}`; // Construye el nombre del archivo
+      const filePath = path.join(uploadPath, filename); // Construye la ruta completa del archivo
 
+      // Guarda el archivo en la ubicación deseada
+      fs.writeFile(filePath, file.buffer, (error) => {
+        if (error) {
+          console.error(`Error al guardar el archivo ${filename}`);
+        } else {
+          console.log(`Archivo ${filename} guardado exitosamente en ${filePath}`);
+        }
+      });
+    });
 
+    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al cargar las imágenes' });
+  }
+});
 
 
 const port = 3000;
