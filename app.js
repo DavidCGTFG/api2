@@ -8,7 +8,7 @@ const path = require('path');
 const app = express();
 const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
-const upload = multer({ storage }).array('imagenes',6);
+const upload = multer({ dest: '/var/www/html/imagenes' });
 
 app.use(express.json());
 
@@ -217,28 +217,19 @@ app.post('/api/v1/caso/cambiar',upload, async (req, res) => {
   }
 });
 
-app.put('/pruebita/imagenes', upload, async (req, res) => {
+app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   try {
-    for (const file of req.files) {
-      const fileName = file.originalname;
-      const fileData = file.buffer;
-      const filePath = path.join('/var/www/html/imagenes', fileName);
+    // Accede a los archivos subidos a través de req.files
+    const files = req.files;
+    console.log('Archivos subidos:', files);
 
-      fs.writeFile(filePath, fileData, (err) => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('Archivo subido exitosamente');
-        }
-      });
-    }
-
-    res.status(200).json({ message: 'Imagen cargada exitosamente' });
+    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al cargar la imagen' });
+    res.status(500).json({ message: 'Error al cargar las imágenes' });
   }
 });
+
 
 
 
