@@ -6,10 +6,15 @@ const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 
 const app = express();
-const storage = multer.memoryStorage();
 const readFileAsync = promisify(fs.readFile);
-const upload = multer({ dest: '/var/www/html/imagenes' });
-const uploadPath = '/var/www/html/imagenes/';
+
+const storage = multer.diskStorage({
+  destination: '/var/www/html/imagenes',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
 
 app.use(express.json());
 
@@ -220,61 +225,12 @@ app.post('/api/v1/caso/cambiar',upload.array('imagenes', 6), async (req, res) =>
 
 app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
   try {
-    // Accede a los archivos subidos a través de req.files
-    const files = req.files;
-    console.log('Archivos subidos:', files);
-
-    // Itera sobre los archivos subidos
-    files.forEach((file, index) => {
-      const filename = `imagen${index + 1}${path.extname(file.originalname)}`; // Construye el nombre del archivo
-      const filePath = path.join(uploadPath, filename); // Construye la ruta completa del archivo
-
-      // Guarda el archivo en la ubicación deseada
-      fs.writeFile(filePath, file.buffer, (error) => {
-        if (error) {
-          console.error(`Error al guardar el archivo ${filename}`);
-        } else {
-          console.log(`Archivo ${filename} guardado exitosamente en ${filePath}`);
-        }
-      });
-    });
-
     res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error al cargar las imágenes' });
   }
 });
-
-
-app.put('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
-  try {
-    const files = req.files;
-    
-    // Iterar sobre los archivos subidos y guardarlos en disco
-    files.forEach((file, index) => {
-      console.log(file.originalname);
-      console.log( file.buffer);
-      const originalFileName = file.originalname; // Obtener el nombre original del archivo
-      const filePath = `/var/www/html/imagenes/${originalFileName}`;
-      const fileData = file.buffer; // Obtener el contenido del archivo
-
-      // Escribir el archivo en disco
-      fs.writeFile(filePath, fileData, (error) => {
-        if (error) {
-          console.error(error);
-          return res.status(500).json({ message: 'Error al guardar las imágenes' });
-        }
-      });
-    });
-
-    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al cargar las imágenes' });
-  }
-});
-
 
 
 
