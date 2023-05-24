@@ -17,6 +17,19 @@ const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   dialect: 'mysql'
 });
 
+app.post('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
+  try {
+    // Accede a los archivos subidos a través de req.files
+    const files = req.files;
+    console.log('Archivos subidos:', files);
+
+    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al cargar las imágenes' });
+  }
+});
+
 app.get('/api/v1/itinerario/last', async (req, res) => {
   try {
     const [results] = await sequelize.query('SELECT max(id_Itinerario) AS lastItinerario FROM itinerario_caso;');
@@ -217,18 +230,7 @@ app.post('/api/v1/caso/cambiar',upload, async (req, res) => {
   }
 });
 
-app.post('/pruebita/imagenes', upload.array('imagenes', 7), (req, res) => {
-  try {
-    // Accede a los archivos subidos a través de req.files
-    const files = req.files;
-    console.log('Archivos subidos:', files);
 
-    res.status(200).json({ message: 'Imágenes cargadas exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al cargar las imágenes' });
-  }
-});
 
 
 
