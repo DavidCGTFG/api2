@@ -185,14 +185,7 @@ app.post('/api/v1/caso/cambiar', upload.array('imagen', 6), async (req, res) => 
       privateKey:privateKey
     });
 
-    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
-    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
-    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
-    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
-    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
-    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
 
-    sftp.end();
     // Guardar la imagen en la base de datos
     const resultado = await sequelize.query('update casos set id_valor=?, nombre=?, texto_intro=?,texto_Opcion_Basica=?,texto_Opcion_Avanzada=?,texto_Opcion_Pasiva=?,texto_Opcion_Agresiva=?,texto_Redencion_Pasiva=?,texto_Redencion_Buena_Pasiva=?,texto_Redencion_Mala_Pasiva=?,texto_Redencion_Agresiva=?,texto_Redencion_Buena_Agresiva=?,texto_Redencion_Mala_Agresiva=?,imagen_Opcion_Basica=?,imagen_Opcion_Avanzada=?,imagen_Opcion_Agresiva=?,imagen_Opcion_Pasiva=?,imagen_Redencion_Pasiva=?,imagen_Redencion_Agresiva=? where id=?', {
       replacements: [id_valor, 
@@ -214,8 +207,17 @@ app.post('/api/v1/caso/cambiar', upload.array('imagen', 6), async (req, res) => 
             (valor+"_pasiva"+id+".jpg"),
             (valor+"_redencion_pasiva"+id+".jpg"),
             (valor+"_redencion_agresiva"+id+".jpg"),id]
-    });
 
+            
+    });
+    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
+    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
+    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
+    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
+
+    sftp.end();
 
     res.json("Actualizado");
   } catch (error) {
@@ -260,14 +262,7 @@ app.post('/api/v1/caso/insertar', upload.array('imagen', 6), async (req, res) =>
       privateKey:privateKey
     });
 
-    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
-    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
-    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
-    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
-    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
-    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
 
-    sftp.end();
 
     // Guardar la imagen en la base de datos
     const resultado = await sequelize.query('insert into casos (id_valor, nombre, texto_intro,texto_Opcion_Basica,texto_Opcion_Avanzada,texto_Opcion_Pasiva,texto_Opcion_Agresiva,texto_Redencion_Pasiva,texto_Redencion_Buena_Pasiva,texto_Redencion_Mala_Pasiva,texto_Redencion_Agresiva,texto_Redencion_Buena_Agresiva,texto_Redencion_Mala_Agresiva,imagen_Opcion_Basica,imagen_Opcion_Avanzada,imagen_Opcion_Agresiva,imagen_Opcion_Pasiva,imagen_Redencion_Pasiva,imagen_Redencion_Agresiva) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', {
@@ -291,6 +286,14 @@ app.post('/api/v1/caso/insertar', upload.array('imagen', 6), async (req, res) =>
             (valor+"_redencion_pasiva"+id+".jpg"),
             (valor+"_redencion_agresiva"+id+".jpg")]
     });
+    await sftp.put(imagenBasica, '/var/www/html/imagenes/' + (valor+"_basica"+id+".jpg"));
+    await sftp.put(imagenAvanzada, '/var/www/html/imagenes/' + (valor+"_avanzada"+id+".jpg"));
+    await sftp.put(imagenAgresiva, '/var/www/html/imagenes/' + (valor+"_agresiva"+id+".jpg"));
+    await sftp.put(imagenPasiva, '/var/www/html/imagenes/' + (valor+"_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionPasiva, '/var/www/html/imagenes/' + (valor+"_redencion_pasiva"+id+".jpg"));
+    await sftp.put(imagenRedencionAgresiva, '/var/www/html/imagenes/' + (valor+"_redencion_agresiva"+id+".jpg"));
+
+    sftp.end();
 
 
     res.json("Creado");
@@ -342,8 +345,17 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
   });
 });
 
+app.post('/pruebita', upload.array('imagen',10), (req, res) => {
+  
+  try{
+     console.log(req);
+  }catch(error){
+    console.log(error);
+  }
+  return null;
+});
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
