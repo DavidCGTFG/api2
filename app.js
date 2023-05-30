@@ -2,17 +2,23 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
-const crypto = require('crypto');
-const jwt = require("jsonwebtoken");
+const session = require('express-session');
+const loginRoutes = require('./routes/loginRoute');
 
 
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-
-
 app.use(express.json());
+
+app.use(session({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use('/api/v1/login', loginRoutes)
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
@@ -347,101 +353,6 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
   });
 });
 
-function calcularHashSHA256(string) {
-
-  const hash = crypto.createHash('sha256');
-
-
-  hash.update(string);
-
-
-  const hashHex = hash.digest('hex');
-
-
-  return hashHex;
-}
-
-function generarTokenJWT(id) {
-  const token = jwt.sign({ profeId: id }, 'login_secret_profe', { expiresIn: '14d' });
-  return token;
-}
-
-app.get('/api/v1/login', (req, res) => {
-  const email = req.query.email
-  const password = req.query.password
-
-
-  const hash = calcularHashSHA256(password);
-
-  const query = `select * from profesores where email='${email}' and contrasena='${hash}';`
-
-
-  sequelize.query(query, (error, results, fields) => {
-      if (error) {
-          console.error(error);
-      } else {
-          if (results.length > 0) {
-              let token = generarTokenJWT(results[0].id);
-              req.session.token = token;
-               res.json({
-                  status: 200,
-                  data: {
-                      name: results[0].nombre,
-                  }
-              });
-          } else {
-             res.json({
-                  status: 404,
-                  data: {
-                      message: 'Usuario no encontrado'
-                  }
-              });
-          }
-      }
-  });
-
-});
-
-app.post('/api/v1/login/checksession',(req,res)=>{
-  const token = req?.session?.token;
-  if (token) {
-      jwt.verify(token, 'login_secret_profe', (err, decoded) => {
-          if (err) {
-              res.json({
-                  status: 401,
-                  data: {
-                      message: 'Token inválido'
-                  }
-              });
-          } else {
-              res.json({
-                  status: 200,
-                  data: {
-                      message: 'Token válido'
-                  }
-              });
-          }
-      });
-  } else {
-      res.json({
-          status: 401,
-          data: {
-              message: 'Token inválido'
-          }
-      });
-  }
-});
-
-
-app.post('/api/v1/logout', (req, res) => {
-  delete req.session.token;
-  res.json({
-      status: 200,
-      data: {
-          message: 'Logout'
-      }
-  });
-});
 
 app.post('/pruebita', upload.array('imagen',10), (req, res) => {
   
@@ -455,7 +366,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3001;
+const port = 3000;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
