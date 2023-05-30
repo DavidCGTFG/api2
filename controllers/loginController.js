@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const crypto = require('crypto');
 const jwt = require("jsonwebtoken");
+const session = require('express-session');
 
 const connection = mysql.createConnection({
     host: '54.81.81.83',
