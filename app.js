@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
+const crypto = require('crypto');
+const jwt = require("jsonwebtoken");
 
 
 const app = express();
@@ -381,14 +383,14 @@ app.get('/api/v1/login', (req, res) => {
           if (results.length > 0) {
               let token = generarTokenJWT(results[0].id);
               req.session.token = token;
-              res.json({
+               res.json({
                   status: 200,
                   data: {
                       name: results[0].nombre,
                   }
               });
           } else {
-              res.json({
+             res.json({
                   status: 404,
                   data: {
                       message: 'Usuario no encontrado'
@@ -397,10 +399,37 @@ app.get('/api/v1/login', (req, res) => {
           }
       }
   });
+
 });
 
-app.get('/api/v1/login',(req,res)=>{
-
+app.post('/api/v1/login/checksession',(req,res)=>{
+  const token = req?.session?.token;
+  if (token) {
+      jwt.verify(token, 'login_secret_profe', (err, decoded) => {
+          if (err) {
+              res.json({
+                  status: 401,
+                  data: {
+                      message: 'Token inválido'
+                  }
+              });
+          } else {
+              res.json({
+                  status: 200,
+                  data: {
+                      message: 'Token válido'
+                  }
+              });
+          }
+      });
+  } else {
+      res.json({
+          status: 401,
+          data: {
+              message: 'Token inválido'
+          }
+      });
+  }
 });
 
 
@@ -426,7 +455,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
