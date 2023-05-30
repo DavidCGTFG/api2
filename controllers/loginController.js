@@ -74,7 +74,7 @@ console.log(req.session.token);
                 res.json({
                     status: 401,
                     data: {
-                        message: 'Token inválido'
+                        message: 'Token inválido 1'
                     }
                 });
             } else {
@@ -90,7 +90,7 @@ console.log(req.session.token);
         res.json({
             status: 401,
             data: {
-                message: 'Token inválido'
+                message: 'Token inválido 2 '
             }
         });
     }
