@@ -65,7 +65,7 @@ exports.checkLogin = (req, res, next) => {
 
 exports.checkSession = (req, res, next) => {
     const token = req?.session?.token;
-
+console.log(req.session.token);
     if (token) {
         jwt.verify(token, 'login_secret_profe', (err, decoded) => {
             console.log(err);
