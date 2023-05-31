@@ -35,7 +35,7 @@ exports.checkLogin = (req, res, next) => {
     const hash = calcularHashSHA256(password);
 
     const query = `select * from profesores where email='${email}' and contrasena='${hash}';`
-
+console.log(query);
     connection.query(query, (error, results, fields) => {
         if (error) {
         } else {
