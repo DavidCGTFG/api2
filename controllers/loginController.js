@@ -28,6 +28,13 @@ function generarTokenJWT(id) {
     return token;
 }
 
+exports.initializeSession = (req, res, next) => {
+    if (!req.session) {
+      req.session = {};
+    }
+    next();
+  };
+
 exports.checkLogin = (req, res, next) => {
     if (!req.session) {
         req.session = {};

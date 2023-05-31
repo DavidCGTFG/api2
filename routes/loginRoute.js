@@ -3,6 +3,8 @@ const loginController = require('../controllers/loginController');
 
 const router = express.Router();
 
+router.use(loginController.initializeSession);
+
 router.route('/').get(loginController.checkLogin);
 
 router.route('/checksession').get(loginController.checkSession);
