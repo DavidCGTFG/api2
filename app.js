@@ -6,6 +6,7 @@ const session = require('express-session');
 const loginRoutes = require('./routes/loginRoute');
 
 
+
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -366,7 +367,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);

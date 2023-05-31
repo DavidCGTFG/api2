@@ -24,13 +24,13 @@ function calcularHashSHA256(string) {
 
 function generarTokenJWT(id) {
     const token = jwt.sign({ profeId: id }, 'login_secret_profe', { expiresIn: '14d' });
+    console .log(token);
     return token;
 }
 
 exports.checkLogin = (req, res, next) => {
 
-    const email = req.query.email
-    const password = req.query.password
+    const { email, password } = req.query;
 
     const hash = calcularHashSHA256(password);
 
@@ -38,7 +38,6 @@ exports.checkLogin = (req, res, next) => {
 
     connection.query(query, (error, results, fields) => {
         if (error) {
-            console.error(error);
         } else {
             if (results.length > 0) {
                 let token = generarTokenJWT(results[0].id);
