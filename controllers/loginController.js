@@ -63,6 +63,9 @@ console.log(query);
 
 
 exports.checkSession = (req, res, next) => {
+    if (!req.session) {
+        req.session = {};
+      }
     const token = req?.session?.token;
 console.log(req.session.data);
     if (token) {
