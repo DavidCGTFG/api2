@@ -20,7 +20,7 @@ const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
 
 app.get('/api/v1/itinerario/last', async (req, res) => {
   try {
-    const [results] = await sequelize.query('SELECT max(id_Itinerario) AS lastItinerario FROM itinerario_caso;');
+    const [results] = await sequelize.query('select id_itinerario as lastItinerario from partidas where id=(select max(id) from partidas);');
     const lastItinerario = results[0].lastItinerario;
 
     const [casosResults] = await sequelize.query(`SELECT id_Caso FROM itinerario_caso WHERE id_Itinerario = ${lastItinerario};`);
@@ -360,7 +360,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
