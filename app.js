@@ -360,7 +360,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3001;
+const port = 3000;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
