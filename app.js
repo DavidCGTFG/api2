@@ -2,8 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
-const session = require('express-session');
-const loginRoutes = require('./routes/loginRoute');
+
 
 
 const app = express();
@@ -12,13 +11,7 @@ const upload = multer({ storage });
 
 app.use(express.json());
 
-app.use(session({
-  secret: 'secret',
-  resave: false,
-  saveUninitialized: false
-}));
 
-app.use('/api/v1/login', loginRoutes)
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
@@ -122,12 +115,13 @@ app.post('/api/v1/itinerario/insertar', async (req, res) => {
   const caso = await sequelize.query('INSERT INTO itinerarios (nombre) VALUES (?)', {
     replacements: [nombre]
  });
- let query="select max(id) from itinerario;";
+ let query="select max(id) as nuevo from itinerarios;";
  const ultimoItinerario=await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
   const array=req.body.array;
+
   for (const element of array) {
     const caso = await sequelize.query('INSERT INTO itinerario_caso (id_itinerario,id_caso) VALUES (?,?)', {
-      replacements: [ultimoItinerario,element]
+      replacements: [ultimoItinerario[0].nuevo,element]
    });
   }
   res.json(array);
@@ -366,7 +360,7 @@ app.post('/pruebita', upload.array('imagen',10), (req, res) => {
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
