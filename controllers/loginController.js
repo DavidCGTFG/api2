@@ -44,6 +44,7 @@ console.log(query);
             if (results.length > 0) {
                 let token = generarTokenJWT(results[0].id);
                 req.session.token = token;
+                console.log(req.session);
                  res.json({
                     status: 200,
                     data: {
@@ -67,7 +68,7 @@ console.log(query);
 exports.checkSession = (req, res, next) => {
 
     const token = req?.session?.token;
-console.log(req.session);
+console.log(req.session.token);
     if (token) {
         jwt.verify(token, 'login_secret_profe', (err, decoded) => {
             console.log(err);
