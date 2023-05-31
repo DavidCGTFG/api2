@@ -29,7 +29,9 @@ function generarTokenJWT(id) {
 }
 
 exports.checkLogin = (req, res, next) => {
-
+    if (!req.session) {
+        req.session = {};
+      }
     const { email, password } = req.query;
 
     const hash = calcularHashSHA256(password);
@@ -63,9 +65,7 @@ console.log(query);
 
 
 exports.checkSession = (req, res, next) => {
-    if (!req.session) {
-        req.session = {};
-      }
+
     const token = req?.session?.token;
 console.log(req.session);
     if (token) {
