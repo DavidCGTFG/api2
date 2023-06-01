@@ -2,8 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
-const session = require('express-session');
-const loginRoutes = require('./routes/loginRoute');
+
 
 
 
@@ -13,13 +12,7 @@ const upload = multer({ storage });
 
 app.use(express.json());
 
-app.use(session({
-  secret: 'secret',
-  resave: false,
-  saveUninitialized: false
-}));
 
-app.use('/api/v1/login', loginRoutes)
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
@@ -28,7 +21,7 @@ const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
 
 app.get('/api/v1/itinerario/last', async (req, res) => {
   try {
-    const [results] = await sequelize.query('SELECT max(id_Itinerario) AS lastItinerario FROM itinerario_caso;');
+    const [results] = await sequelize.query('select id_itinerario as lastItinerario from partidas where id=(select max(id) from partidas);');
     const lastItinerario = results[0].lastItinerario;
 
     const [casosResults] = await sequelize.query(`SELECT id_Caso FROM itinerario_caso WHERE id_Itinerario = ${lastItinerario};`);
@@ -123,12 +116,13 @@ app.post('/api/v1/itinerario/insertar', async (req, res) => {
   const caso = await sequelize.query('INSERT INTO itinerarios (nombre) VALUES (?)', {
     replacements: [nombre]
  });
- let query="select max(id) from itinerario;";
+ let query="select max(id) as nuevo from itinerarios;";
  const ultimoItinerario=await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
   const array=req.body.array;
+
   for (const element of array) {
     const caso = await sequelize.query('INSERT INTO itinerario_caso (id_itinerario,id_caso) VALUES (?,?)', {
-      replacements: [ultimoItinerario,element]
+      replacements: [ultimoItinerario[0].nuevo,element]
    });
   }
   res.json(array);
