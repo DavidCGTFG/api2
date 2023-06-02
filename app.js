@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
-
+const cors = require('cors');
 
 
 
@@ -11,7 +11,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 app.use(express.json());
-
+app.use(cors());
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
