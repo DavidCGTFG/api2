@@ -39,6 +39,19 @@ app.get('/api/v1/itinerario/last', async (req, res) => {
   }
 });
 
+app.post('/api/v1/caso/elegido', async (req, res) => {
+  console.log(req.body.id);
+  try {
+    let query='select * from casos where id='+req.body.id+';';
+    const caso = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+    res.json(caso);
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+
+
 app.get('/api/v1/caso/:idCaso', (req, res) => {
   const idItinerario = req.query.itinerario;
   const idCaso = req.params.idCaso;
@@ -348,15 +361,7 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
 });
 
 
-app.post('/pruebita', upload.array('imagen',10), (req, res) => {
-  
-  try{
-     console.log(req);
-  }catch(error){
-    console.log(error);
-  }
-  return null;
-});
+
 
 
 
