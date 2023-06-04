@@ -372,6 +372,10 @@ app.post('/api/v1/caso', async (req, res) => {
   const opcionCaso = await sequelize.query('insert into partida_caso(id_partida,id_caso,opcion) values(?,?,?)', {
     replacements: [partida, caso.idCaso, caso.name]
   });
+  res.json({
+    status: 200,
+    data: opcionCaso,
+});
   }catch(err){
     console.log(err);
   }
