@@ -8,7 +8,12 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 app.use(express.json());
-
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
   host: '54.81.81.83',
@@ -364,14 +369,17 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
 app.post('/api/v1/caso', async (req, res) => {
 
   console.log("INSERTANDO EL RESULTADO DEL CASO");
+  try{
   let caso = req.body.caso;
   const [results] = await sequelize.query('select id as ultimaPartida from partidas where id=(select max(id) from partidas);');
   const partida = results[0].ultimaPartida;
 
   const opcionCaso = await sequelize.query('insert into partida_caso(id_partida,id_caso,opcion) values(?,?,?)', {
-    replacements: [partida, caso.idCaso, caso.name.name]
+    replacements: [partida, caso.idCaso, caso.name]
   });
-
+  }catch(err){
+    console.log(err);
+  }
 });
 
 
@@ -389,7 +397,7 @@ app.get('/api/v1/valores', async (req, res) => {
 
 
 
-const port = 3000;
+const port = 3001;
 
 app.listen(port, () => {
   console.log(`Servidor Express funcionando en el puerto ${port}`);
