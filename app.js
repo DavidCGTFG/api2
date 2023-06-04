@@ -361,8 +361,32 @@ app.post('/subir', upload.array('imagen', 10), (req, res) => {
   });
 });
 
+app.post('/api/v1/caso', async (req, res) => {
+
+  console.log("INSERTANDO EL RESULTADO DEL CASO");
+  let caso = req.body.caso;
+  const [results] = await sequelize.query('select id as ultimaPartida from partidas where id=(select max(id) from partidas);');
+  const partida = results[0].ultimaPartida;
 
 
+  const opcionCaso = await sequelize.query('insert into partida_caso(id_partida,id_caso,opcion) values(?,?,?)', {
+    replacements: [partida, caso.idCaso, caso.name]
+  });
+
+});
+
+
+app.get('/api/v1/valores', async (req, res) => {
+
+  let query = 'SELECT id,nombre FROM valores'; // Consulta SQL inicial sin filtro
+
+  try {
+    const profesores = await sequelize.query(query, { type: Sequelize.QueryTypes.SELECT });
+    res.json(profesores);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los casos' });
+  }
+});
 
 
 
