@@ -3,14 +3,11 @@ const multer = require('multer');
 const fs = require('fs');
 const { Sequelize, DataTypes } = require('sequelize');
 
-
-
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 app.use(express.json());
-
 
 
 const sequelize = new Sequelize('supervalues', 'adminputty', 'putty', {
@@ -58,7 +55,8 @@ app.get('/api/v1/caso/:idCaso', (req, res) => {
 
   // Ejecutar la consulta usando Sequelize
   sequelize.query(`
-    SELECT * FROM casos
+    SELECT casos.*,imagen_recompensa,imagen_fracaso,recompensa FROM casos
+    JOIN valores on valores.id=id_valor
     JOIN itinerario_caso ON casos.id = itinerario_caso.id_caso
     WHERE id_itinerario = ${idItinerario} AND casos.id = ${idCaso}
   `)
@@ -167,7 +165,10 @@ app.get('/api/v1/casos', async (req, res) => {
 });
 
 app.post('/api/v1/caso/cambiar', upload.array('imagen', 6), async (req, res) => {
-  const { id, id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, texto_Opcion_Pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva, texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, texto_Redencion_Mala_Agresiva } = req.body;
+  const { id, id_valor, nombre, texto_intro, texto_Opcion_Basica, texto_Opcion_Avanzada, 
+    texto_Opcion_Pasiva, texto_Opcion_Agresiva, texto_Redencion_Pasiva, texto_Redencion_Buena_Pasiva,
+     texto_Redencion_Mala_Pasiva, texto_Redencion_Agresiva, texto_Redencion_Buena_Agresiva, 
+     texto_Redencion_Mala_Agresiva } = req.body;
   const imagenes = req.files;
   const imagen1 = imagenes[0];
   const imagen2 = imagenes[1];
