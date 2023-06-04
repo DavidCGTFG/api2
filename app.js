@@ -368,9 +368,8 @@ app.post('/api/v1/caso', async (req, res) => {
   const [results] = await sequelize.query('select id as ultimaPartida from partidas where id=(select max(id) from partidas);');
   const partida = results[0].ultimaPartida;
 
-
   const opcionCaso = await sequelize.query('insert into partida_caso(id_partida,id_caso,opcion) values(?,?,?)', {
-    replacements: [partida, caso.idCaso, caso.name]
+    replacements: [partida, caso.idCaso, caso.name.name]
   });
 
 });
